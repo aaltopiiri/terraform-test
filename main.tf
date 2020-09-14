@@ -1,15 +1,3 @@
-variable "region" {}
-#variable "shared_credentials_file" {}
-variable "profile" {}
-variable "amis" {
-  type = map
-  }
-
-variable "server_port" {
-description = "The port the server will use for HTTP requests"
-  type        = number
-}
-
 terraform {
   required_version = ">=0.12.13"
   backend "s3" {
@@ -21,31 +9,38 @@ terraform {
   }
 }
 
+
 provider "aws" {
-  region                  = var.region
-  #shared_credentials_file = "${var.shared_credentials_file}"
+  region                  = "${terraform.workspace}"
+  shared_credentials_file = "${var.shared_credentials_file}"
   profile                 = var.profile
 }
 
-/* resource "aws_key_pair" "example" {
-  key_name   = "examplekey"
-  public_key = file("~/.ssh/terraform.pub")
-} */
-
-resource "aws_security_group" "instance" { 
-  name = "terraform-sg"
-  ingress {
-  from_port = var.server_port
-  to_port = var.server_port
-  protocol = "tcp"
-  cidr_blocks = ["0.0.0.0/0"]
+data "aws_availability_zones" "available" {
+  state = "available"
 }
 
+resource "aws_security_group" "instance" {
+  name = "my-sg"
   ingress {
-      from_port   = 22
-      to_port     = 22
-      protocol    = "tcp"
-      cidr_blocks = ["0.0.0.0/0"]
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
@@ -54,39 +49,52 @@ resource "aws_security_group" "instance" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-
-}
-
-resource "aws_instance" "web" {
-  ami = lookup(var.amis, var.region)
-  instance_type = "t2.micro"
-  #key_name = aws_key_pair.example.key_name
-  key_name = "AWS-Free"
-  vpc_security_group_ids = [aws_security_group.instance.id]
-    
-    provisioner "remote-exec" {
-     inline = [
-       "sudo amazon-linux-extras enable nginx1.12",
-       "sudo yum -y install nginx",
-       "sudo systemctl start nginx",
-     ]
-   }  
-
-   connection {
-    type        = "ssh"
-    user        = "ec2-user"
-    private_key = file("./AWS-Free.pem")
-    #private_key = file("~/.ssh/terraform")
-    host        = self.public_ip
-     }
-
   tags = {
-  Name = "terraform-example"
-}
-}
-
-resource "aws_eip" "ip" {
-  #vpc      = true
-  instance = aws_instance.web.id
+    Name = "HTTP-Only"
+  }
 }
 
+resource "aws_instance" "web-1" {
+  ami                    = lookup(var.amis, "${terraform.workspace}")
+  instance_type          = "t2.micro"
+  availability_zone      = data.aws_availability_zones.available.names[0]
+  vpc_security_group_ids = [aws_security_group.instance.id]
+  user_data              = <<-EOF
+              #!/bin/bash
+              yum -y update
+              yum -y install httpd
+              echo "<html><body bgcolor=white><center><h1><font color=black>WebServer-1</h1></center></body></html>" > /var/www/html/index.html
+              sudo systemctl start httpd
+              sudo systemctl enable httpd
+              EOF
+  tags = {
+    Name = "web-server-1"
+  }
+}
+
+resource "aws_instance" "web-2" {
+  ami                    = lookup(var.amis, "${terraform.workspace}")
+  instance_type          = "t2.micro"
+  availability_zone      = data.aws_availability_zones.available.names[1]
+  vpc_security_group_ids = [aws_security_group.instance.id]
+
+  user_data = <<-EOF
+              #!/bin/bash
+              yum -y update
+              yum -y install httpd
+              echo "<html><body bgcolor=white><center><h1><font color=black>WebServer-2</h1></center></body></html>" > /var/www/html/index.html
+              sudo systemctl start httpd
+              sudo systemctl enable httpd
+              EOF  
+  tags = {
+    Name = "web-server-2"
+  }
+}
+
+resource "aws_eip" "web-1-ip" {
+  instance = aws_instance.web-1.id
+}
+
+resource "aws_eip" "web-2-ip" {
+  instance = aws_instance.web-2.id
+}

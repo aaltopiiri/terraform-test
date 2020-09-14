@@ -14,7 +14,7 @@ agent any
 
     stage('TF Apply') {
       steps {
-          sh 'terraform apply -var-file=variables.tfvars -input=false myplan --auto-approve'
+          sh 'terraform apply myplan'
       }
     }
   } 
