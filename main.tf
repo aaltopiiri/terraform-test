@@ -11,8 +11,8 @@ terraform {
 
 
 provider "aws" {
-  region                  = "${terraform.workspace}"
-  shared_credentials_file = "${var.shared_credentials_file}"
+  region                  = terraform.workspace
+  shared_credentials_file = var.shared_credentials_file
   profile                 = var.profile
 }
 
@@ -97,4 +97,35 @@ resource "aws_eip" "web-1-ip" {
 
 resource "aws_eip" "web-2-ip" {
   instance = aws_instance.web-2.id
+}
+
+data "aws_vpc" "default" {
+  default = true
+}
+
+data "aws_subnet_ids" "all" {
+  vpc_id = data.aws_vpc.default.id
+}
+
+resource "aws_alb" "alb" {
+  name            = "my-alb"
+  security_groups = ["${aws_security_group.instance.id}"]
+  subnets         = data.aws_subnet_ids.all.ids
+  tags = {
+    Name = "terraform-alb"
+  }
+}
+
+resource "aws_alb_target_group" "group" {
+  name     = "terraform-example-alb-target"
+  port     = 80
+  protocol = "HTTP"
+  vpc_id   = data.aws_vpc.default.id
+  stickiness {
+    type = "lb_cookie"
+  }
+  health_check {
+    path = "/"
+    port = 80
+  }
 }
