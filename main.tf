@@ -58,7 +58,7 @@ resource "aws_security_group" "instance" {
   }
 }
 
- resource "aws_instance" "web-1" {
+  resource "aws_instance" "web-1" {
   ami                    = lookup(var.amis, "${terraform.workspace}")
   instance_type          = "t2.micro"
   availability_zone      = data.aws_availability_zones.available.names[0]
@@ -101,7 +101,7 @@ resource "aws_eip" "web-1-ip" {
 
 resource "aws_eip" "web-2-ip" {
   instance = aws_instance.web-2.id
-} 
+}  
 
 data "aws_vpc" "default" {
   default = true
@@ -145,7 +145,7 @@ resource "aws_alb_listener" "listener_http" {
   }
 }
 
- resource "aws_lb_target_group_attachment" "atachment-1" {
+  resource "aws_lb_target_group_attachment" "atachment-1" {
   target_group_arn = aws_alb_target_group.group.arn
   target_id        = aws_instance.web-1.id
   port             = 80
