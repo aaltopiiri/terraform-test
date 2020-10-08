@@ -1,7 +1,7 @@
 variable "zone_name" {}
 variable "shared_credentials_file" {
   type    = string
-  default = "/var/lib/jenkins/.aws/credentials"
+  default = "~/.aws/credentials"
 }
 variable "profile" {}
 variable "region" {
