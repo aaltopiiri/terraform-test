@@ -27,8 +27,8 @@ resource "aws_route53_record" "mx-1" {
 
 locals {
   a_records_settings = {
-    /*     "www" = { records = ["10.10.10.10"] },
-    "dev" = { records = ["10.10.10.11"] } */
+    "www" = { records = ["10.10.10.10"] },
+    "dev" = { records = ["10.10.10.11"] }
   }
 }
 
