@@ -64,7 +64,6 @@ pipeline {
 									env.PATH = "${tfHome}:${env.PATH}"
 									currentBuild.displayName += "[$AWS_REGION]::[$ACTION]"
 									sh("""
-										echo $PATH
 										export AWS_PROFILE=${PROFILE}
 										export TF_ENV_profile=${PROFILE}
 										mkdir -p /tmp/jenkins/.terraform.d/plugins/macos
