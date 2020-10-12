@@ -51,13 +51,25 @@ pipeline {
  		booleanParam (name: 'no_ALB',
 		       defaultValue:  'false',
 			   description: 'Option to create ALB/ELB')	
-	    activeChoiceParam('Service') {
-            description('Select service you wan to deploy')
-            choiceType('SINGLE_SELECT')
-            groovyScript {
+         activeChoiceParam('choice1') {
+                      description('select your choice')
+                      choiceType('RADIO')
+                      groovyScript {
                           script('return["aaa","bbb"]')
                           fallbackScript('return ["error"]')
-            }
+                      }
+        }
+        activeChoiceReactiveParam('choice2') {
+                      description('select your choice')
+                      choiceType('RADIO')
+                      groovyScript {
+                          script(' if(choice1.equals("aaa")) { return ["a", "b"] } else {return ["aaaaaa","fffffff"] } ')
+                          fallbackScript('return ["error"]')
+                      }
+                      referencedParameter('choice1')
+        }
+
+    }
         }		   	
     }
 	stages {
