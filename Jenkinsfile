@@ -69,7 +69,7 @@ pipeline {
                       referencedParameter('choice1')
         }
 
-    }
+    
         }		   	
     }
 	stages {
