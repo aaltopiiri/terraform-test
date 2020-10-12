@@ -55,8 +55,8 @@ pipeline {
             description('Select service you wan to deploy')
             choiceType('SINGLE_SELECT')
             groovyScript {
-                script('return ['web-service', 'proxy-service', 'backend-service']')
-                fallbackScript('"fallback choice"')
+                          script('return["aaa","bbb"]')
+                          fallbackScript('return ["error"]')
             }
         }		   	
     }
