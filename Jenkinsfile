@@ -67,9 +67,6 @@ pipeline {
                           fallbackScript('return ["error"]')
                       }
                       referencedParameter('choice1')
-        }
-
-    
         }		   	
     }
 	stages {
