@@ -50,16 +50,7 @@ pipeline {
 			   description: 'Load balancer name in region AP')	
  		booleanParam (name: 'no_ALB',
 		       defaultValue:  'false',
-			   description: 'Option to create ALB/ELB')	
-         activeChoiceParam('choice1') {
-                      description('select your choice')
-                      choiceType('RADIO')
-                      groovyScript {
-                          script('return["aaa","bbb"]')
-                          fallbackScript('return ["error"]')
-                      }
-        }
-	   	
+			   description: 'Option to create ALB/ELB')		   	
     }
 	stages {
 		stage('Checkout & Environment Prep'){
