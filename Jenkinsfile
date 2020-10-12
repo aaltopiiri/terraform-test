@@ -50,7 +50,15 @@ pipeline {
 			   description: 'Load balancer name in region AP')	
  		booleanParam (name: 'no_ALB',
 		       defaultValue:  'false',
-			   description: 'Option to create ALB/ELB')		
+			   description: 'Option to create ALB/ELB')	
+	    activeChoiceParam('Service') {
+            description('Select service you wan to deploy')
+            choiceType('SINGLE_SELECT')
+            groovyScript {
+                script('return ['web-service', 'proxy-service', 'backend-service']')
+                fallbackScript('"fallback choice"')
+            }
+        }		   	
     }
 	stages {
 		stage('Checkout & Environment Prep'){
