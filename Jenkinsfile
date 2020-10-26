@@ -93,7 +93,7 @@ pipeline {
 								env.I_LIST = sh(script:"""aws route53 --profile ${PROFILE} list-hosted-zones | jq '.HostedZones[].Name' | sed 's/\"//g' | sort -n | tail -5""", returnStdout: true)
                                 env.REPO_TAG = input message: 'Domain list:', ok: 'Next',
                                 parameters: [choice(name: 'Domains', choices: env.I_LIST, description: 'Available images')]
-								})	
+								}
 								try {
 									tfCmd('plan', '-var profile="${PROFILE}" -var workspace="${ENV_NAME}" -var zone_name="${DOMAIN_NAME}" -var is_mx="${is_MX}" -var is_alb="${is_ALB}" -var elb_us_zone_id="${ALB_ZONE_ID_US}" -var elb_eu_zone_id="${ALB_ZONE_ID_EU}" -var elb_ap_zone_id="${ALB_ZONE_ID_AP}" -var no_alb="${no_ALB}" -lock=false -detailed-exitcode -out=tfplan')
 								} catch (ex) {
