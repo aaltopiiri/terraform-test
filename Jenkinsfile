@@ -90,7 +90,7 @@ pipeline {
 					script {
 						wrap([$class: 'AnsiColorBuildWrapper', colorMapName: 'xterm']) {
 								if (is_ALB.equals("true")) {
-								env.I_LIST = sh(script:"""aws route53 --profile ${PROFILE} list-hosted-zones | jq '.HostedZones[].Name' | sed 's/\"//g' | sort -n | tail -5""", returnStdout: true)
+								env.I_LIST = sh(script:"""/usr/local/bin/aws route53 --profile ${PROFILE} list-hosted-zones | /usr/local/bin/jq '.HostedZones[].Name' | sed 's/\"//g' | sort -n | tail -5""", returnStdout: true)
                                 env.REPO_TAG = input message: 'Domain list:', ok: 'Next',
                                 parameters: [choice(name: 'Domains', choices: env.I_LIST, description: 'Available images')]
 								}
