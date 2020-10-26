@@ -92,9 +92,16 @@ pipeline {
 								if (is_ALB.equals("true")) {
 								env.I_LIST = sh(script:"""/usr/local/bin/aws route53 --profile ${PROFILE} list-hosted-zones | /usr/local/bin/jq '.HostedZones[].Name' | sed 's/\"//g' | sort -n | tail -5""", returnStdout: true)
                                 env.I_LIST_US = sh(script:"""/usr/local/bin/aws elbv2 --profile ${PROFILE} describe-load-balancers --region us-east-1 | /usr/local/bin/jq '.LoadBalancers[].LoadBalancerName' | sed 's/\"//g' | sort -n | tail -5""", returnStdout: true)
-                                env.REPO_TAG = input message: 'Hosted Zones:', ok: 'Next',
-                                parameters: [choice(name: 'Hosted_Zones', choices: env.I_LIST, description: 'Hosted Zones List')]
+                                env.I_LIST_EU = sh(script:"""/usr/local/bin/aws elbv2 --profile ${PROFILE} describe-load-balancers --region eu-west-1 | /usr/local/bin/jq '.LoadBalancers[].LoadBalancerName' | sed 's/\"//g' | sort -n | tail -5""", returnStdout: true)
+                                env.I_LIST_AP = sh(script:"""/usr/local/bin/aws elbv2 --profile ${PROFILE} describe-load-balancers --region ap-south-1 | /usr/local/bin/jq '.LoadBalancers[].LoadBalancerName' | sed 's/\"//g' | sort -n | tail -5""", returnStdout: true)
+								env.REPO_TAG = input message: 'Hosted Zones:', ok: 'Next',
+								parameters: [choice(name: 'Hosted_Zones', choices: env.I_LIST, description: 'Hosted Zones List')]
+								env.REPO_TAG = input message: 'ALB Region US:', ok: 'Next',
 								parameters: [choice(name: 'ALB-US', choices: env.I_LIST_US, description: 'ALB names for region us-east-1')]
+								env.REPO_TAG = input message: 'ALB Region EU:', ok: 'Next',
+								parameters: [choice(name: 'ALB-EU', choices: env.I_LIST_US, description: 'ALB names for region eu-west-1')]
+								env.REPO_TAG = input message: 'ALB Region AP:', ok: 'Next',
+								parameters: [choice(name: 'ALB-AP', choices: env.I_LIST_US, description: 'ALB names for region ap-south-1')]
 								}
 								try {
 									tfCmd('plan', '-var profile="${PROFILE}" -var workspace="${ENV_NAME}" -var zone_name="${DOMAIN_NAME}" -var is_mx="${is_MX}" -var is_alb="${is_ALB}" -var elb_us_zone_id="${ALB_ZONE_ID_US}" -var elb_eu_zone_id="${ALB_ZONE_ID_EU}" -var elb_ap_zone_id="${ALB_ZONE_ID_AP}" -var no_alb="${no_ALB}" -lock=false -detailed-exitcode -out=tfplan')
