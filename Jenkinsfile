@@ -39,7 +39,7 @@ pipeline {
  		booleanParam (name: 'is_ALB',
 		       defaultValue:  'false',
 			   description: 'Option to create records for ALB/ELB')	
-		string (name: 'ALB_ZONE_ID_US',
+/* 		string (name: 'ALB_ZONE_ID_US',
 			   defaultValue:  '', 	
 			   description: 'Load balancer name in region US')
 		string (name: 'ALB_ZONE_ID_EU',
@@ -47,7 +47,7 @@ pipeline {
 			   description: 'Load balancer name in region EU')
 		string (name: 'ALB_ZONE_ID_AP',
 		       defaultValue:  '',
-			   description: 'Load balancer name in region AP')	
+			   description: 'Load balancer name in region AP')	 */
  		booleanParam (name: 'no_ALB',
 		       defaultValue:  'false',
 			   description: 'Option to create ALB/ELB')		   	
@@ -97,14 +97,14 @@ pipeline {
 								env.REPO_TAG = input message: 'Hosted Zones:', ok: 'Next',
 								parameters: [choice(name: 'Hosted_Zones', choices: env.I_LIST, description: 'Hosted Zones List')]
 								env.REPO_TAG = input message: 'ALB Region US:', ok: 'Next',
-								parameters: [choice(name: 'ALB-US', choices: env.I_LIST_US, description: 'ALB names for region us-east-1'),defaultValue:  '',]
+								parameters: [choice(name: 'ALB_ZONE_ID_US', choices: env.I_LIST_US, description: 'ALB names for region us-east-1',defaultValue:  '')]
 								env.REPO_TAG = input message: 'ALB Region EU:', ok: 'Next',
-								parameters: [choice(name: 'ALB-EU', choices: env.I_LIST_US, description: 'ALB names for region eu-west-1'),defaultValue:  '',]
+								parameters: [choice(name: 'ALB_ZONE_ID_EU', choices: env.I_LIST_US, description: 'ALB names for region eu-west-1',defaultValue:  '')]
 								env.REPO_TAG = input message: 'ALB Region AP:', ok: 'Next',
-								parameters: [choice(name: 'ALB-AP', choices: env.I_LIST_US, description: 'ALB names for region ap-south-1'),defaultValue:  '',]
+								parameters: [choice(name: 'ALB_ZONE_ID_AP', choices: env.I_LIST_US, description: 'ALB names for region ap-south-1',defaultValue:  '')]
 								}
 								try {
-									tfCmd('plan', '-var profile="${PROFILE}" -var workspace="${ENV_NAME}" -var zone_name="${DOMAIN_NAME}" -var is_mx="${is_MX}" -var is_alb="${is_ALB}" -var elb_us_zone_id="${env.I_LIST_US}" -var elb_eu_zone_id="${env.I_LIST_EU}" -var elb_ap_zone_id="${env.I_LIST_AP}" -var no_alb="${no_ALB}" -lock=false -detailed-exitcode -out=tfplan')
+									tfCmd('plan', '-var profile="${PROFILE}" -var workspace="${ENV_NAME}" -var zone_name="${DOMAIN_NAME}" -var is_mx="${is_MX}" -var is_alb="${is_ALB}" -var elb_us_zone_id="${ALB_ZONE_ID_US}" -var elb_eu_zone_id="${ALB_ZONE_ID_EU}" -var elb_ap_zone_id="${ALB_ZONE_ID_AP}" -var no_alb="${no_ALB}" -lock=false -detailed-exitcode -out=tfplan')
 								} catch (ex) {
 									if (ex == 2 && "${ACTION}" == 'apply') {
 										currentBuild.result = "UNSTABLE"
