@@ -21,6 +21,7 @@ pipeline {
         timestamps()
         timeout(time: 30, unit: 'MINUTES')
         disableConcurrentBuilds()
+		quietPeriod(60)
   }
 	parameters {
 		string (name: 'ENV_NAME',
